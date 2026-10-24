@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Analyze Email{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl animate-slide-up">
+    <div class="mb-8">
+        <h1 class="text-3xl font-black tracking-widest text-white uppercase">Analyze Payload</h1>
+        <p class="mt-1 font-mono text-sm text-gray-400">
+            Upload a raw <code class="rounded bg-cyberline px-1.5 py-0.5 text-cybercyan text-xs">.eml</code> message.
+            Max {{ max_upload_mb }} MB.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+        <!-- Upload Form -->
+        <section class="lg:col-span-2">
+            <form id="upload-form" class="neon-border rounded-lg bg-cyberpanel p-8" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <label for="file-input" id="dropzone"
+                    class="group relative flex h-64 cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded border-2 border-dashed border-cyberline bg-cyberbg/50 transition-all duration-300 hover:border-cybercyan hover:bg-cybercyan/5">
+                    <!-- Animated grid overlay -->
+                    <div class="absolute inset-0 opacity-10 transition-opacity duration-500 group-hover:opacity-30"
+                        style="background-image: linear-gradient(#00D9FF 1px, transparent 1px), linear-gradient(90deg, #00D9FF 1px, transparent 1px); background-size: 20px 20px;">
+                    </div>
+
+                    <svg class="h-12 w-12 text-gray-500 transition-all duration-300 group-hover:scale-110 group-hover:text-cybercyan"
+                        fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                    </svg>
+
+                    <div class="text-center relative z-10">
+                        <span class="font-mono text-sm font-bold text-gray-300">DROP <span
+                                class="text-cybercyan">.EML</span> PAYLOAD HERE</span>
+                        <span class="mt-1 block text-xs text-gray-500 font-mono">or click to browse filesystem</span>
+                    </div>
+                    <span id="filename"
+                        class="relative z-10 mt-2 hidden rounded border border-cybercyan/50 bg-cyberbg px-4 py-1 font-mono text-sm font-bold text-cybercyan"></span>
+                </label>
+                <input id="file-input" name="file" type="file" accept=".eml,message/rfc822" class="hidden">
+
+                <div
+                    class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-cyberline pt-6">
+                    <p class="font-mono text-xs text-gray-500 max-w-xs">
+                        Only RFC 5322 / MIME messages. Binary content is rejected.
+                    </p>
+                    <button id="submit-btn" type="submit" disabled
+                        class="group relative flex w-full sm:w-auto justify-center items-center gap-2 rounded bg-cybercyan px-6 py-3 text-sm font-bold uppercase tracking-widest text-black transition-all hover:bg-white hover:shadow-glow-strong disabled:cursor-not-allowed disabled:opacity-50">
+                        <span>Execute Analysis</span>
+                        <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="result" class="mt-6 hidden rounded border px-4 py-3 font-mono text-sm font-bold"></div>
+            </form>
+        </section>
+
+        <!-- Safety Info -->
+        <aside class="space-y-4">
+            <div class="neon-border rounded-lg bg-cyberpanel p-5">
+                <h2 class="mb-3 text-xs font-black uppercase tracking-widest text-cybercyan flex items-center gap-2">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Safety Protocol
+                </h2>
+                <ul class="space-y-2 font-mono text-xs text-gray-400">
+                    <li class="flex items-start gap-2"><span class="text-low">✓</span> Attachments never executed.</li>
+                    <li class="flex items-start gap-2"><span class="text-low">✓</span> URLs never auto-visited.</li>
+                    <li class="flex items-start gap-2"><span class="text-low">✓</span> HTML never rendered inline.</li>
+                    <li class="flex items-start gap-2"><span class="text-low">✓</span> Files stored in secure root.</li>
+                </ul>
+            </div>
+
+            <div class="neon-border rounded-lg bg-cyberpanel p-5">
+                <h2 class="mb-3 text-xs font-black uppercase tracking-widest text-cyberpurple">Privacy</h2>
+                <p class="font-mono text-xs text-gray-400 leading-relaxed">
+                    Emails may contain PII. Do not upload confidential content unless permitted. Evidence is retained
+                    locally.
+                </p>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script>
+    const dropzone = document.getElementById('dropzone');
+    const input = document.getElementById('file-input');
+    const filename = document.getElementById('filename');
+    const submit = document.getElementById('submit-btn');
+    const form = document.getElementById('upload-form');
+    const result = document.getElementById('result');
+
+    function setFile(file) {
+        if (!file) return;
+        filename.textContent = file.name + ' · ' + (file.size / 1024).toFixed(1) + ' KB';
+        filename.classList.remove('hidden');
+        submit.disabled = false;
+    }
+
+    input.addEventListener('change', () => setFile(input.files[0]));
+
+    ['dragenter', 'dragover'].forEach(ev =>
+        dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('border-cybercyan', 'bg-cybercyan/10'); }));
+    ['dragleave', 'drop'].forEach(ev =>
+        dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('border-cybercyan', 'bg-cybercyan/10'); }));
+
+    dropzone.addEventListener('drop', e => {
+        if (e.dataTransfer.files && e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            setFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submit.disabled = true;
+        submit.innerHTML = 'PROCESSING...';
+        result.className = 'mt-6 rounded border border-cybercyan/50 bg-cybercyan/10 px-4 py-3 font-mono text-sm font-bold text-cybercyan animate-pulse';
+        result.textContent = '> Uploading and analyzing payload...';
+        result.classList.remove('hidden');
+
+        const fd = new FormData();
+        fd.append('file', input.files[0]);
+        fd.append('csrf_token', form.querySelector('input[name=csrf_token]').value);
+
+        try {
+            const r = await fetch("{{ url_for('analyze.analyze_upload') }}", {
+                method: 'POST',
+                body: fd,
+                credentials: 'same-origin',
+            });
+
+            if (r.redirected && r.url.includes('/auth/login')) {
+                window.location.href = r.url;
+                return;
+            }
+
+            const contentType = r.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Server returned an unexpected response.");
+            }
+
+            const data = await r.json();
+
+            if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+
+            if (data.duplicate) {
+                result.className = 'mt-6 rounded border border-med/50 bg-med/10 px-4 py-3 font-mono text-sm font-bold text-med';
+                result.textContent = '> Duplicate of ' + data.case_number + ' — redirecting...';
+            } else {
+                result.className = 'mt-6 rounded border border-low/50 bg-low/10 px-4 py-3 font-mono text-sm font-bold text-low';
+                result.textContent = '> Created ' + data.case_number + ' — redirecting...';
+            }
+            setTimeout(() => { window.location.href = data.redirect; }, 800);
+        } catch (err) {
+            result.className = 'mt-6 rounded border border-cyberrose/50 bg-cyberrose/10 px-4 py-3 font-mono text-sm font-bold text-cyberrose';
+            result.textContent = '> ERROR: ' + err.message;
+            submit.disabled = false;
+            submit.innerHTML = 'EXECUTE ANALYSIS';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard | Next-Gen Threat Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyberbg: '#050816',
+                        cyberpanel: '#0a0f1d',
+                        cyberline: '#1e293b',
+                        cybercyan: '#00D9FF',
+                        cyberpurple: '#8B5CF6',
+                        cyberrose: '#F43F5E',
+                    },
+                    fontFamily: {
+                        mono: ['"Fira Code"', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@300;400;700;900&display=swap');
+
+        body {
+            background-color: #050816;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Glowing Cyber Grid */
+        .cyber-grid {
+            background-image:
+                linear-gradient(rgba(0, 217, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 217, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            mask-image: radial-gradient(ellipse at top, black 20%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 80%);
+        }
+
+        /* Neon Text Glow */
+        .neon-text-cyan {
+            text-shadow: 0 0 8px rgba(0, 217, 255, 0.8), 0 0 20px rgba(0, 217, 255, 0.4);
+        }
+
+        .neon-text-purple {
+            text-shadow: 0 0 8px rgba(139, 92, 246, 0.8), 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Neon Borders */
+        .neon-border {
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.1), inset 0 0 10px rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .neon-border:hover {
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.5), inset 0 0 15px rgba(0, 217, 255, 0.2);
+            border-color: #00D9FF;
+            transform: translateY(-2px);
+        }
+
+        /* Terminal Typing Animation */
+        .typewriter h1 {
+            overflow: hidden;
+            border-right: .15em solid #00D9FF;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .1em;
+            animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: #00D9FF
+            }
+        }
+
+        /* Floating Particle Animation */
+        .particle {
+            position: absolute;
+            background: #00D9FF;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00D9FF;
+            animation: float 10s infinite linear;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.5;
+            }
+
+            90% {
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translateY(-100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col relative font-sans">
+
+    <!-- Backgrounds -->
+    <div class="cyber-grid"></div>
+    <div id="particles" class="absolute inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <!-- Navbar -->
+    <nav
+        class="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-cyberline/50 bg-cyberbg/80 backdrop-blur-md sticky top-0">
+        <div class="flex items-center gap-3">
+            <svg class="h-8 w-8 text-cybercyan animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span class="text-2xl font-black tracking-widest text-white uppercase">Phish<span
+                    class="text-cybercyan">Guard</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            
+            <a href="{{ url_for('auth.login') }}"
+                class="neon-border rounded bg-cybercyan px-5 py-2 text-sm font-black uppercase tracking-widest text-black hover:bg-white transition-all">
+                System Login
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="relative z-10 flex flex-1 flex-col items-center pt-20 pb-16 px-4 text-center">
+
+        <div
+            class="mb-6 rounded-full border border-cyberpurple/50 bg-cyberpurple/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-cyberpurple backdrop-blur-sm animate-fade-in">
+            SOC-Grade Threat Intelligence Platform
+        </div>
+
+        <div class="typewriter mb-6 max-w-5xl">
+            <h1 class="text-5xl font-black tracking-tight text-white md:text-7xl lg:text-8xl">
+                Analyze. Detect. <span class="text-cybercyan neon-text-cyan">Neutralize.</span>
+            </h1>
+        </div>
+
+        <p class="mb-10 max-w-3xl text-lg text-gray-400 font-light leading-relaxed">
+            PhishGuard is an advanced phishing email analysis platform. Safely ingest raw <code
+                class="text-cybercyan font-mono text-sm bg-cybercyan/10 px-1 py-0.5 rounded">.eml</code> files, extract
+            Indicators of Compromise (IOCs), run modular detection rules, and enrich threats with VirusTotal — all
+            within a unified dark-mode interface.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full justify-center max-w-md">
+            <a href="{{ url_for('auth.login') }}"
+                class="group relative flex items-center justify-center gap-2 overflow-hidden rounded bg-cybercyan px-8 py-4 font-black uppercase tracking-widest text-black transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(0,217,255,0.4)]">
+                <span class="relative z-10">Initialize Session</span>
+                <svg class="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Terminal Preview -->
+        <div class="mt-20 w-full max-w-4xl text-left perspective-1000">
+            <div
+                class="neon-border overflow-hidden rounded-lg bg-[#0a0f1d] shadow-2xl transform transition-transform hover:scale-[1.01]">
+                <div class="flex items-center gap-2 border-b border-cybercyan/30 bg-black/60 px-4 py-3">
+                    <div class="h-3 w-3 rounded-full bg-cyberrose"></div>
+                    <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
+                    <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                    <span class="ml-2 font-mono text-xs text-gray-500">phishguard@core:~</span>
+                </div>
+                <div class="p-6 font-mono text-sm leading-relaxed text-gray-300 overflow-x-auto">
+                    <p><span class="text-cyberpurple">$</span> python analyzer.py --file suspicious.eml</p>
+                    <p class="mt-2 text-gray-500">[*] Ingesting raw MIME structure...</p>
+                    <p class="text-gray-500">[*] Extracting IOCs (URLs, IPs, Hashes)...</p>
+                    <p class="text-gray-500">[*] Evaluating 14 modular detection rules...</p>
+                    <p class="mt-2 text-cyberrose">[!] HDR-001: Reply-To domain mismatch detected (weight: 10)</p>
+                    <p class="text-cyberrose">[!] URL-001: Raw IP address in URL detected (weight: 15)</p>
+                    <p class="text-cyberrose">[!] ATT-002: Double extension detected (weight: 20)</p>
+                    <p class="mt-2"><span class="text-cybercyan">[+] Risk Score: 85/100 (CRITICAL)</span></p>
+                    <p class="text-cybercyan">[+] Verdict: LIKELY_PHISHING</p>
+                    <p class="mt-2 text-gray-500">[*] Querying VirusTotal for threat intel (async)...</p>
+                    <p class="text-green-400">[+] Enriched 4 IOCs. Malicious IP detected.</p>
+                    <p class="mt-2"><span class="text-cyberpurple">$</span> <span class="animate-pulse">_</span></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="relative z-10 py-20 px-6 max-w-7xl mx-auto w-full">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-black uppercase tracking-widest text-white">Core Capabilities</h2>
+            <p class="mt-2 font-mono text-cybercyan text-sm">Built for SOC Analysts & Threat Hunters</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Feature 1 -->
+            <div class="neon-border rounded-lg bg-cyberpanel p-6">
+                <div
+                    class="h-12 w-12 rounded bg-cybercyan/10 flex items-center justify-center mb-4 border border-cybercyan/30 text-cybercyan">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Deep Email Parsing</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">Safely parses complex MIME structures, decodes RFC 2047
+                    headers, and extracts text/HTML bodies without executing malicious payloads.</p>
+            </div>
+            <!-- Feature 2 -->
+            <div class="neon-border rounded-lg bg-cyberpanel p-6">
+                <div
+                    class="h-12 w-12 rounded bg-cyberpurple/10 flex items-center justify-center mb-4 border border-cyberpurple/30 text-cyberpurple">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Explainable Detection</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">Modular rules evaluate Header spoofing, URL
+                    obfuscation, and dangerous attachments. Every finding is backed by raw evidence and a rule ID.</p>
+            </div>
+            <!-- Feature 3 -->
+            <div class="neon-border rounded-lg bg-cyberpanel p-6">
+                <div
+                    class="h-12 w-12 rounded bg-cyberrose/10 flex items-center justify-center mb-4 border border-cyberrose/30 text-cyberrose">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Threat Intel Enrichment</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">Asynchronously queries VirusTotal v3 for extracted
+                    IOCs, caching results in PostgreSQL to respect API rate limits and ensure fast investigations.</p>
+            </div>
+            <!-- Feature 4 -->
+            <div class="neon-border rounded-lg bg-cyberpanel p-6">
+                <div
+                    class="h-12 w-12 rounded bg-cybercyan/10 flex items-center justify-center mb-4 border border-cybercyan/30 text-cybercyan">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Transparent Risk Scoring</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">Findings are aggregated into a 0–100 score with
+                    correlated-indicator deduplication. Severity bands map directly to recommended SOC actions.</p>
+            </div>
+            <!-- Feature 5 -->
+            <div class="neon-border rounded-lg bg-cyberpanel p-6">
+                <div
+                    class="h-12 w-12 rounded bg-cyberpurple/10 flex items-center justify-center mb-4 border border-cyberpurple/30 text-cyberpurple">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Case Management</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">Track investigations with status workflows, append
+                    analyst notes, and maintain a full audit trail of all actions taken during triage.</p>
+            </div>
+            <!-- Feature 6 -->
+            <div class="neon-border rounded-lg bg-cyberpanel p-6">
+                <div
+                    class="h-12 w-12 rounded bg-cyberrose/10 flex items-center justify-center mb-4 border border-cyberrose/30 text-cyberrose">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">PDF Investigation Reports</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">Generate print-ready HTML reports containing findings,
+                    IOCs, intelligence attribution, and analyst conclusions for stakeholder review.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section class="relative z-10 border-t border-cyberline/50 bg-black/40 py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-xs font-black uppercase tracking-widest text-gray-500 mb-6">Engineered With</p>
+            <div
+                class="flex flex-wrap justify-center gap-8 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                <span class="font-mono text-lg font-bold text-white">Python 3.13</span>
+                <span class="font-mono text-lg font-bold text-white">Flask</span>
+                <span class="font-mono text-lg font-bold text-white">PostgreSQL</span>
+                <span class="font-mono text-lg font-bold text-white">SQLAlchemy</span>
+                <span class="font-mono text-lg font-bold text-white">Tailwind CSS</span>
+                <span class="font-mono text-lg font-bold text-white">VirusTotal API</span>
+                <span class="font-mono text-lg font-bold text-white">Pytest</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-cyberline py-8 text-center text-xs font-mono text-gray-600">
+        <p>© 2026 PhishGuard Security. Built for defensive operations.</p>
+        <p class="mt-2 text-cybercyan/50">Authorized personnel only. All access is logged.</p>
+    </footer>
+
+    <!-- Particle Script -->
+    <script>
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            let p = document.createElement('div');
+            p.className = 'particle';
+            let size = Math.random() * 4 + 1;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = Math.random() * 100 + '%';
+            p.style.animationDuration = (Math.random() * 10 + 5) + 's';
+            p.style.animationDelay = (Math.random() * 5) + 's';
+            container.appendChild(p);
+        }
+    </script>
+</body>
+
+</html>

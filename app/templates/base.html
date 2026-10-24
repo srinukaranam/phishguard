@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" class="dark scroll-smooth">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}PhishGuard{% endblock %} · PhishGuard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace'],
+                    },
+                    colors: {
+                        cyberbg: '#050816',
+                        cyberpanel: '#0a0f1d',
+                        cyberline: '#1e293b',
+                        cybercyan: '#00D9FF',
+                        cyberpurple: '#8B5CF6',
+                        cyberrose: '#F43F5E',
+                        low: '#10b981',
+                        med: '#f59e0b',
+                        high: '#f97316',
+                        crit: '#ef4444',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px -3px rgba(0, 217, 255, 0.3)',
+                        'glow-strong': '0 0 25px -5px rgba(0, 217, 255, 0.5)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050816;
+            color: #e2e8f0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #050816;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00D9FF;
+        }
+
+        .sev-low {
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .sev-medium {
+            color: #f59e0b;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+        }
+
+        .sev-high {
+            color: #f97316;
+            text-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
+        }
+
+        .sev-critical {
+            color: #ef4444;
+            text-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+
+        .neon-panel {
+            background: rgba(10, 15, 29, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.05);
+        }
+
+        .neon-border {
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen antialiased font-sans flex flex-col">
+
+    {% if current_user.is_authenticated %}
+    <nav class="sticky top-0 z-50 neon-panel border-b border-cyberline">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+
+            <div class="flex items-center gap-8">
+                <a href="{{ url_for('dashboard.index') }}"
+                    class="group flex items-center gap-2 text-lg font-black tracking-widest text-white uppercase transition-all hover:text-cybercyan">
+                    <svg class="h-6 w-6 text-cybercyan transition-transform group-hover:scale-110" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Phish<span class="text-cybercyan">Guard</span>
+                </a>
+
+                <div class="hidden space-x-6 md:flex">
+                    <a href="{{ url_for('dashboard.index') }}"
+                        class="text-sm font-bold tracking-wider text-gray-400 transition-colors hover:text-cybercyan uppercase">Dashboard</a>
+                    <a href="{{ url_for('cases.index') }}"
+                        class="text-sm font-bold tracking-wider text-gray-400 transition-colors hover:text-cybercyan uppercase">Cases</a>
+                    <a href="{{ url_for('analyze.analyze_page') }}"
+                        class="text-sm font-bold tracking-wider text-gray-400 transition-colors hover:text-cybercyan uppercase">Analyze</a>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden flex-col items-end sm:flex">
+                    <span class="text-sm font-medium text-white">{{ current_user.email }}</span>
+                    {% if current_user.is_admin %}
+                    <span class="text-xs font-bold text-cyberpurple uppercase tracking-widest">Admin</span>
+                    {% endif %}
+                </div>
+                <form method="post" action="{{ url_for('auth.logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit"
+                        class="group relative flex items-center gap-2 rounded border border-cyberline bg-cyberbg px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-gray-300 transition-all hover:border-cybercyan hover:text-cybercyan hover:shadow-glow">
+                        <span>Sign out</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 animate-fade-in">
+        {% with msgs = get_flashed_messages(with_categories=true) %}
+        {% if msgs %}
+        <div class="mb-6 space-y-2">
+            {% for category, msg in msgs %}
+            {% set cls = {
+            'error':'border-crit/50 bg-crit/10 text-crit',
+            'warning':'border-med/50 bg-med/10 text-med',
+            'success':'border-low/50 bg-low/10 text-low',
+            'info':'border-cybercyan/50 bg-cybercyan/10 text-cybercyan'
+            }.get(category, 'border-cyberline bg-cyberpanel text-gray-300') %}
+            <div
+                class="animate-slide-up rounded border {{ cls }} px-4 py-3 text-sm font-bold uppercase tracking-wide shadow-sm backdrop-blur-sm">
+                {{ msg }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+
+</html>

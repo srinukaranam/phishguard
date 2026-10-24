@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+    <div>
+        <h1 class="text-3xl font-black tracking-widest text-white uppercase">SOC Dashboard</h1>
+        <p class="mt-1 text-sm font-mono text-cybercyan">Real-time threat analysis overview</p>
+    </div>
+</div>
+
+<!-- Metric Cards -->
+<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {% set cards = [
+    ('Total Cases', stats.total_cases, 'text-cybercyan', 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0
+    0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'),
+    ('High-Risk', stats.high_risk_cases, 'text-cyberrose', 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667
+    1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'),
+    ('Open Investigations',stats.open_cases, 'text-cyberpurple', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0
+    012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'),
+    ('Suspicious URLs', stats.suspicious_urls, 'text-high', 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656
+    5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1'),
+    ] %}
+
+    {% for label, value, color, icon in cards %}
+    <div
+        class="neon-border group relative overflow-hidden rounded-lg bg-cyberpanel p-5 transition-all duration-300 hover:-translate-y-1 hover:bg-cyberpanel/80">
+        <div
+            class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-{{ color }}/10 blur-2xl transition-all group-hover:bg-{{ color }}/20">
+        </div>
+        <div class="flex items-center justify-between">
+            <p class="text-xs font-bold uppercase tracking-widest text-gray-400">{{ label }}</p>
+            <svg class="h-5 w-5 {{ color }} opacity-70 transition-opacity group-hover:opacity-100" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ icon }}" />
+            </svg>
+        </div>
+        <p class="mt-4 text-4xl font-black {{ color }} drop-shadow-md">{{ value }}</p>
+    </div>
+    {% endfor %}
+</section>
+
+<!-- Middle Section: Table & Alerts -->
+<section class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+    <!-- Recent Cases -->
+    <div class="neon-border rounded-lg bg-cyberpanel p-5">
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-sm font-black uppercase tracking-widest text-gray-300">Recent Cases</h2>
+            <a href="{{ url_for('cases.index') }}"
+                class="text-xs font-bold uppercase tracking-wider text-cybercyan hover:underline">View All</a>
+        </div>
+
+        {% if recent_cases %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-cyberline text-xs uppercase text-gray-500">
+                    <tr>
+                        <th class="pb-3 font-bold tracking-wider">Case</th>
+                        <th class="pb-3 font-bold tracking-wider">Subject</th>
+                        <th class="pb-3 font-bold tracking-wider">Severity</th>
+                        <th class="pb-3 text-right font-bold tracking-wider">Score</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-cyberline/50">
+                    {% for c in recent_cases %}
+                    <tr class="group cursor-pointer transition-colors hover:bg-white/5"
+                        onclick="window.location='{{ url_for('analyze.case_preview', case_id=c.id) }}'">
+                        <td class="py-3 font-mono text-xs text-cybercyan group-hover:text-white transition-colors">{{
+                            c.case_number }}</td>
+                        <td class="py-3 text-gray-300 max-w-[200px] truncate">{{ c.subject or '—' }}</td>
+                        <td class="py-3">
+                            <span
+                                class="inline-flex items-center rounded border border-{{ c.severity }}/30 bg-{{ c.severity }}/10 px-2 py-0.5 text-xs font-bold uppercase tracking-widest sev-{{ c.severity }}">
+                                {{ c.severity }}
+                            </span>
+                        </td>
+                        <td class="py-3 text-right font-mono font-bold text-gray-200">{{ c.risk_score }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center py-8 text-center text-gray-500">
+            <svg class="mb-2 h-10 w-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p class="font-mono text-sm">No cases analyzed yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column: Alerts & Chart -->
+    <div class="space-y-6">
+
+        <!-- Alerts Feed -->
+        <div class="neon-border rounded-lg bg-cyberpanel p-5">
+            <h2 class="mb-4 text-sm font-black uppercase tracking-widest text-gray-300">Live Threat Alerts</h2>
+            {% if recent_findings %}
+            <ul class="space-y-4">
+                {% for f in recent_findings %}
+                <li class="flex items-start gap-3">
+                    <div
+                        class="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-{{ f.severity }}/20">
+                        <span class="sev-{{ f.severity }} text-xs font-bold">!</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-200">
+                            <a href="{{ url_for('analyze.case_preview', case_id=f.case_id) }}"
+                                class="hover:text-cybercyan transition-colors">
+                                {{ f.title }}
+                            </a>
+                        </p>
+                        <p class="mt-1 font-mono text-xs text-gray-500">{{ f.case.case_number }} · {{
+                            f.created_at.strftime('%H:%M') }}</p>
+                    </div>
+                    <span class="sev-{{ f.severity }} text-xs font-bold uppercase tracking-widest">{{ f.severity
+                        }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="font-mono text-sm text-gray-500">No high-risk alerts detected.</p>
+            {% endif %}
+        </div>
+
+        <!-- Severity Chart -->
+        <div class="neon-border rounded-lg bg-cyberpanel p-5">
+            <h2 class="mb-4 text-sm font-black uppercase tracking-widest text-gray-300">Risk Distribution</h2>
+            <div class="relative h-56">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('severityChart').getContext('2d');
+        const data = {{ severity_distribution | tojson
+    }};
+
+    if (Chart.getChart("severityChart")) { return; }
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Low', 'Medium', 'High', 'Critical'],
+            datasets: [{
+                data: [data.low || 0, data.medium || 0, data.high || 0, data.critical || 0],
+                backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#F43F5E'],
+                borderWidth: 0,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            cutout: '75%',
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: '#94a3b8', font: { family: 'Inter', size: 12, weight: 'bold' }, boxWidth: 10, usePointStyle: true }
+                }
+            }
+        }
+    });
+  });
+</script>
+{% endblock %}

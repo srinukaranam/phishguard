@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}System Login{% endblock %}
+
+{% block content %}
+<div class="mx-auto mt-16 max-w-md animate-slide-up">
+    <div class="neon-border rounded-lg bg-cyberpanel p-8 shadow-xl">
+
+        <div class="mb-8 text-center">
+            <div
+                class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-cybercyan/30 bg-cybercyan/10">
+                <svg class="h-8 w-8 text-cybercyan animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-black uppercase tracking-widest text-white">System Login</h1>
+            <p class="mt-2 font-mono text-xs text-gray-500">Authenticate to access the SOC dashboard</p>
+        </div>
+
+        <form method="post" novalidate class="space-y-5">
+            {{ form.hidden_tag() }}
+
+            <div>
+                {{ form.email.label(class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400") }}
+                {{ form.email(
+                class="w-full rounded border border-cyberline bg-cyberbg px-4 py-3 font-mono text-sm text-white
+                placeholder-gray-600 focus:border-cybercyan focus:outline-none focus:ring-1 focus:ring-cybercyan
+                transition-all",
+                placeholder="analyst@phishguard.io", autocomplete="username", autofocus=true) }}
+                {% for e in form.email.errors %}
+                <p class="mt-1 text-xs font-bold text-cyberrose">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                {{ form.password.label(class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400") }}
+                {{ form.password(
+                class="w-full rounded border border-cyberline bg-cyberbg px-4 py-3 font-mono text-sm text-white
+                focus:border-cybercyan focus:outline-none focus:ring-1 focus:ring-cybercyan transition-all",
+                autocomplete="current-password", placeholder="••••••••") }}
+                {% for e in form.password.errors %}
+                <p class="mt-1 text-xs font-bold text-cyberrose">{{ e }}</p>
+                {% endfor %}
+            </div>
+
+            {{ form.submit(
+            class="group relative w-full flex justify-center items-center rounded bg-cybercyan px-4 py-3 text-sm
+            font-bold uppercase tracking-widest text-black transition-all hover:bg-white hover:shadow-glow-strong
+            cursor-pointer") }}
+        </form>
+
+    </div>
+
+    <p class="mt-6 text-center font-mono text-xs text-gray-600">
+        RESTRICTED ACCESS. Unauthorized attempts are logged.
+    </p>
+</div>
+{% endblock %}

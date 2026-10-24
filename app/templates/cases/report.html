@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PhishGuard Report - {{ case.case_number }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #1f2937;
+            margin: 0;
+            padding: 40px;
+            line-height: 1.5;
+            background: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            border-bottom: 3px solid #050816;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 800;
+            color: #050816;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            margin: 4px 0 0;
+            color: #6b7280;
+            font-size: 13px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Score Box */
+        .score-box {
+            text-align: right;
+            background: #050816;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border-left: 5px solid #00D9FF;
+        }
+
+        .score-box p {
+            margin: 0;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #9ca3af;
+        }
+
+        .score {
+            font-size: 36px;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .verdict {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 4px;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Typography Helpers */
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: #374151;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Severity Colors */
+        .bg-red {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+
+        .bg-yellow {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+
+        .bg-orange {
+            background: #ffedd5;
+            color: #9a3412;
+            border: 1px solid #fb923c;
+        }
+
+        .bg-green {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+
+        .bg-gray {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .note {
+            background: #f9fafb;
+            border-left: 4px solid #8B5CF6;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 11px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-family: 'Fira Code', monospace;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .score-box {
+                border: 1px solid #050816;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="no-print" style="margin-bottom: 20px; text-align: right;">
+            <button onclick="window.print()"
+                style="padding: 10px 20px; background: #00D9FF; border: none; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer;">Print
+                / Save PDF</button>
+            <a href="{{ url_for('analyze.case_preview', case_id=case.id) }}"
+                style="margin-left: 10px; padding: 10px 20px; background: #e5e7eb; text-decoration: none; color: #111; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Back</a>
+        </div>
+
+        <div class="header">
+            <div>
+                <h1>PhishGuard Investigation Report</h1>
+                <p>CASE: {{ case.case_number }} | GENERATED: {{ generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</p>
+            </div>
+            <div class="score-box">
+                <p>Risk Score</p>
+                <p class="score sev-{{ case.severity }}"
+                    style="color: {% if case.severity == 'critical' %}#F43F5E{% elif case.severity == 'high' %}#f97316{% elif case.severity == 'medium' %}#f59e0b{% else %}#10b981{% endif %};">
+                    {{ case.risk_score }}/100</p>
+                <p class="verdict" style="color: white;">{{ case.severity }} · {{ case.verdict | replace('_', ' ') }}
+                </p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Case Metadata</h2>
+            <table>
+                <tr>
+                    <th style="width: 150px;">Subject</th>
+                    <td>{{ case.subject or '—' }}</td>
+                </tr>
+                <tr>
+                    <th>Sender</th>
+                    <td class="font-mono">{{ case.sender or '—' }}</td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td><span class="badge bg-gray">{{ case.status | upper }}</span></td>
+                </tr>
+                <tr>
+                    <th>SHA-256 (Evidence)</th>
+                    <td class="font-mono">{{ case.evidence_sha256 }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Detection Findings</h2>
+            {% if findings %}
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Rule</th>
+                        <th>Finding</th>
+                        <th style="width: 100px;">Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in findings %}
+                    <tr>
+                        <td class="font-mono" style="font-weight: bold;">{{ f.rule_id }}</td>
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 4px;">{{ f.title }}</div>
+                            <div style="color:#6b7280; font-size:12px;">{{ f.description }}</div>
+                        </td>
+                        <td><span
+                                class="badge {% if f.severity in ['high','critical'] %}bg-red{% elif f.severity == 'medium' %}bg-yellow{% else %}bg-gray{% endif %}">{{
+                                f.severity }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="font-size:14px; color:#6b7280;">No detection findings.</p>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2>Extracted Indicators (IOCs)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Type</th>
+                        <th>Value</th>
+                        <th style="width: 200px;">Reputation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in artifacts %}
+                    <tr>
+                        <td><span class="badge bg-gray">{{ a.artifact_type }}</span></td>
+                        <td class="font-mono">{{ a.original_value }}</td>
+                        <td>
+                            {% set intel = intel_map.get(a.id) %}
+                            {% if intel %}
+                            {% if intel.result == 'malicious' %}<span style="color:#dc2626; font-weight:bold;">MALICIOUS
+                                ({{ intel.positives }}/{{ intel.total_engines }})</span>
+                            {% elif intel.result == 'suspicious' %}<span
+                                style="color:#ea580c; font-weight:bold;">SUSPICIOUS ({{ intel.positives }}/{{
+                                intel.total_engines }})</span>
+                            {% elif intel.result == 'clean' %}<span
+                                style="color:#16a34a; font-weight:bold;">CLEAN</span>
+                            {% else %}<span style="color:#6b7280;">UNKNOWN</span>{% endif %}
+                            {% else %}
+                            <span style="color:#9ca3af;">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Analyst Notes</h2>
+            {% if notes %}
+            {% for n in notes %}
+            <div class="note">
+                <div style="font-size:11px; color:#6b7280; margin-bottom:4px; font-weight: 600;">{{ n.author.email }} —
+                    {{ n.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                <div style="font-family: 'Fira Code', monospace; font-size: 13px;">{{ n.note }}</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p style="font-size:14px; color:#6b7280;">No analyst notes recorded.</p>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            Generated by PhishGuard. Decision-support tool. Findings must be interpreted in context.
+        </div>
+    </div>
+</body>
+
+</html>
